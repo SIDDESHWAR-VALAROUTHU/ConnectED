@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+
+<div class="notifications-container">
+  <!-- Header -->
+  <div class="notifications-header">
+    <h2>Notifications</h2>
+    <form method="post" action="{% url 'accounts:clear_notifications' %}">
+      {% csrf_token %}
+      <button type="submit" class="clear-all-btn">Clear All</button>
+    </form>
+  </div>
+
+  <!-- Notification list -->
+  <ul class="notifications-list">
+    {% if notifications %}
+      {% for note in notifications %}
+      <li class="notification-item {% if note.is_read %}read{% else %}unread{% endif %}">
+
+        <!-- Header: avatar + username + time -->
+        <div class="notif-header">
+          {% if note.from_user and note.from_user.profile_pic and note.from_user.profile_pic.url %}
+            <img src="{{ note.from_user.profile_pic.url }}" alt="{{ note.from_user.username }}" class="notif-avatar">
+          {% else %}
+            <img src="https://via.placeholder.com/50" alt="User" class="notif-avatar">
+          {% endif %}
+
+          <div class="notif-user-info">
+            {% if note.from_user and note.from_user.username %}
+              <a href="{% url 'accounts:profile' note.from_user.username %}" class="notif-username">
+                {{ note.from_user.username }}
+              </a>
+              {% if note.from_user.role %}
+                <span class="notif-role">{{ note.from_user.role|capfirst }}</span>
+              {% endif %}
+            {% else %}
+              <span class="notif-username">System</span>
+            {% endif %}
+          </div>
+
+          {% if note.timestamp %}
+            <span class="notif-time">{{ note.timestamp|naturaltime }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Message -->
+        <div class="notif-body">{{ note.message }}</div>
+
+        <!-- Actions -->
+       <!-- Actions -->
+<div class="notif-actions">
+  {% if note.connection %}
+    {% if note.connection.status == 'pending' %}
+      <form method="post" action="{% url 'accounts:accept_request' note.connection.id %}" class="inline-form">
+        {% csrf_token %}
+        <button type="submit" class="accept-btn">Accept</button>
+      </form>
+      <form method="post" action="{% url 'accounts:reject_request' note.connection.id %}" class="inline-form">
+        {% csrf_token %}
+        <button type="submit" class="reject-btn">Reject</button>
+      </form>
+    {% elif note.connection.status == 'accepted' %}
+      <span class="text-success">✅ You’re now connected</span>
+    {% elif note.connection.status == 'rejected' %}
+      <span class="text-muted">❌ Request declined</span>
+    {% endif %}
+  {% endif %}
+
+  {% if note.id %}
+    <!-- Delete notification -->
+    <form method="post" action="{% url 'accounts:delete_notification' note.id %}" class="delete-form">
+      {% csrf_token %}
+      <button type="submit" class="delete-btn" title="Delete notification">🗑️</button>
+    </form>
+  {% endif %}
+</div>
+
+      </li>
+      {% endfor %}
+    {% else %}
+      <p class="no-notifications">No notifications yet 🎉</p>
+    {% endif %}
+  </ul>
+</div>
+<style>
+  /* Container to align buttons */
+.notif-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+/* Common button styles */
+.notif-actions button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Accept button */
+.notif-actions .accept-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.notif-actions .accept-btn:hover {
+  background-color: #43a047;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+/* Reject button */
+.notif-actions .reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.notif-actions .reject-btn:hover {
+  background-color: #e53935;
+  box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+}
+
+/* Optional: make them look neat on small screens */
+@media (max-width: 600px) {
+  .notif-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .notif-actions button {
+    width: 100%;
+  }
+}
+
+  
+</style>
+
+{% endblock %}

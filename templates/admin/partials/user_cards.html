@@ -1,0 +1,126 @@
+<div class="users-grid">
+  {% for user in users %}
+  <div class="user-card" id="user-card-{{ user.id }}">
+    
+      <div class="user-top">
+
+          {% if user.profile_pic %}
+              <img src="{{ user.profile_pic.url }}" class="user-pic">
+          {% else %}
+              <img src="https://api.dicebear.com/7.x/thumbs/svg?seed={{ user.username }}" class="user-pic">
+          {% endif %}
+
+          <div class="user-info">
+              <a href="{% url 'accounts:profile' username=user.username %}" class="user-name">
+                  {{ user.username }}
+              </a>
+              <div class="user-role">{{ user.current_designation|default:"Student" }}</div>
+          </div>
+
+      </div>
+
+      <div class="user-details">
+        <div><strong>Department:</strong> {{ user.department|default:"N/A" }}</div>
+        <div><strong>Batch:</strong> {{ user.batch|default:"N/A" }}</div>
+      </div>
+
+      <button class="delete-btn" onclick="deleteUser({{ user.id }})">
+        Delete User
+      </button>
+
+  </div>
+  {% empty %}
+    <p>No users found.</p>
+  {% endfor %}
+</div>
+<style>
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 28px;
+  padding: 10px;
+  margin-top: 15px;
+}
+
+/* Each profile card */
+.user-card {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 22px;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transition: 0.25s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+}
+
+/* Top section */
+.user-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-pic {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Username clickable */
+.user-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #003366;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.user-name:hover {
+  color: #0055cc;
+}
+
+/* Role */
+.user-role {
+  font-size: 14px;
+  color: #555;
+  margin-top: 3px;
+}
+
+/* Details box */
+.user-details {
+  margin-top: 16px;
+  padding: 12px 15px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Delete Button */
+.delete-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 18px;
+  border: none;
+  background: #d11a2a;
+  color: white;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.delete-btn:hover {
+  background: #b01622;
+  transform: scale(1.02);
+}
+
+</style>

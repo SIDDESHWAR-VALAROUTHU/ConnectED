@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- CSRF Token for JS -->
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+
+<div class="admin-wrapper">
+
+    <div class="admin-header">
+        <h2 class="admin-title">🗂️ User Management</h2>
+        <p class="admin-subtitle">Manage all users — view profiles or remove access</p>
+    </div>
+
+    <div class="admin-search-box">
+        <i class="search-icon fa fa-search"></i>
+        <input type="text" id="admin-search" class="admin-search" placeholder="Search by name, department, batch...">
+    </div>
+
+    <div id="admin-user-list" class="admin-grid">
+        {% include "admin/partials/user_cards.html" with users=users %}
+    </div>
+
+</div>
+
+<script>
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+// 🔍 Live Search
+document.getElementById("admin-search").addEventListener("keyup", function () {
+    let q = this.value;
+
+    fetch(`/accounts/admin/search-users/?q=${q}`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("admin-user-list").innerHTML = html;
+        });
+});
+
+// 🗑️ Delete User
+function deleteUser(uid) {
+    if (!confirm("⚠️ Are you sure you want to delete this user?")) return;
+
+    fetch(`/accounts/admin/delete-user/${uid}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrftoken
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            let card = document.getElementById("user-card-" + uid);
+            card.classList.add("fade-out");
+            setTimeout(() => card.remove(), 350);
+        } else {
+            alert("❌ Failed to delete user.");
+        }
+    });
+}
+</script>
+
+<style>
+
+:root {
+    --primary: #0047b3;
+    --primary-light: #e6f0ff;
+    --text-dark: #1a1a1a;
+    --text-light: #6c6c6c;
+    --danger: #d11124;
+    --danger-hover: #b00f1f;
+    --card-bg: rgba(255, 255, 255, 0.65);
+    --glass-bg: rgba(255, 255, 255, 0.45);
+}
+
+/* Wrapper */
+.admin-wrapper {
+    padding: 35px;
+    animation: fadeIn 0.4s ease;
+}
+
+/* Header */
+.admin-header {
+    margin-bottom: 30px;
+}
+
+.admin-title {
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--text-dark);
+}
+
+.admin-subtitle {
+    margin-top: 4px;
+    color: var(--text-light);
+    font-size: 16px;
+}
+
+/* Search Box */
+.admin-search-box {
+    position: relative;
+    margin-bottom: 35px;
+}
+
+.admin-search {
+    width: 100%;
+    padding: 14px 55px;
+    background: white;
+    border-radius: 50px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    transition: 0.25s ease;
+}
+
+.admin-search:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 8px rgba(66,133,244,0.35);
+}
+
+
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    opacity: 0.6;
+}
+
+/* ⭐ Two Cards per Row */
+.admin-grid {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+
+/* User Card */
+.user-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    padding: 22px;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.4);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+}
+
+/* Delete animation */
+.fade-out {
+    opacity: 0;
+    transform: scale(0.96);
+    transition: 0.35s ease;
+}
+
+/* User info section */
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* Profile image */
+.user-pic {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+}
+
+/* User name link */
+.user-name {
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--primary);
+    text-decoration: none;
+    position: relative;
+}
+
+.user-name::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background: var(--primary);
+    left: 0;
+    bottom: -3px;
+    transition: 0.25s;
+}
+
+.user-name:hover::after {
+    width: 100%;
+}
+
+.user-role {
+    font-size: 14px;
+    color: #7d7d7d;
+    margin-top: 3px;
+}
+
+/* Details Panel */
+.user-details {
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 14px;
+    background: var(--glass-bg);
+    font-size: 14px;
+    border-left: 4px solid var(--primary);
+}
+
+/* Delete Button */
+.delete-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    background: var(--danger);
+    color: #fff;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.delete-btn:hover {
+    background: var(--danger-hover);
+    transform: translateY(-3px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% for job in jobs %}
+<a href="{% url 'jobs:jobs' %}#job-{{ job.id }}" class="result-card">
+  {% if job.posted_by.profile_pic and job.posted_by.profile_pic.url %}
+  <img src="{{ job.posted_by.profile_pic.url }}" alt="{{ job.posted_by.username }}">
+{% else %}
+  <img src="https://via.placeholder.com/100" alt="Default Profile">
+{% endif %}
+
+  <div class="result-info">
+    <span class="result-title">{{ job.title }}</span>
+    <span class="result-subtext">{{ job.company }} — {{ job.location }}</span>
+  </div>
+</a>
+{% empty %}
+<div class="result-card"><span class="result-title">No jobs found.</span></div>
+{% endfor %}

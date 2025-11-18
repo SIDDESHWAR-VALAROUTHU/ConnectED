@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="privacy-settings">
+  <h2>🔒 Privacy Settings</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <label><input type="checkbox" name="show_experience" {% if privacy.show_experience %}checked{% endif %}> Show Experience</label><br>
+    <label><input type="checkbox" name="show_projects" {% if privacy.show_projects %}checked{% endif %}> Show Projects</label><br>
+    <label><input type="checkbox" name="show_achievements" {% if privacy.show_achievements %}checked{% endif %}> Show Achievements</label><br>
+    <label><input type="checkbox" name="show_posts" {% if privacy.show_posts %}checked{% endif %}> Show Posts</label><br>
+    <label><input type="checkbox" name="show_contact_info" {% if privacy.show_contact_info %}checked{% endif %}> Show Contact Info</label><br>
+    <!---<label><input type="checkbox" name="show_connect_list" {% if privacy.show_connect_list %}checked{% endif %}> Show Connected List</label><br><br>--->
+
+    <button type="submit" class="btn accent">💾 Save Settings</button>
+  </form>
+</div>
+<style>
+    /* General container */
+.privacy-settings {
+  max-width: 600px;
+  margin: 3rem auto;
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Heading */
+.privacy-settings h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0d3b66;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+/* Form styling */
+.privacy-settings form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Label styling */
+.privacy-settings label {
+  font-size: 1rem;
+  color: #333;
+  background: #f8faff;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.privacy-settings label:hover {
+  background: #eef4ff;
+  border-color: #a7c7e7;
+}
+
+/* Checkbox styling */
+.privacy-settings input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #0d3b66;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+/* Save button */
+.privacy-settings .btn.accent {
+  background: #0d3b66;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  align-self: center;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(13, 59, 102, 0.2);
+}
+
+.privacy-settings .btn.accent:hover {
+  background: #1a539a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(13, 59, 102, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .privacy-settings {
+    padding: 2rem;
+  }
+
+  .privacy-settings h2 {
+    font-size: 1.5rem;
+  }
+
+  .privacy-settings label {
+    font-size: 0.95rem;
+    padding: 0.7rem 0.9rem;
+  }
+}
+
+</style>
+{% endblock %}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>College Alumni Network</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+</head>
+<body>
+  <!-- Header -->
+  <header>
+  <div class="header-left">
+    <div class="logo">ConnectED</div>
+  </div>
+
+<div class="search-bar">
+  <form id="global-search-form" class="nav-search" onsubmit="return false;">
+    <input type="text" id="global-search" name="q" placeholder="Search..." autocomplete="off">
+    <button type="submit">🔍</button>
+  </form>
+</div>
+
+
+
+  <nav>
+    <a href="{% url 'accounts:home' %}">Home</a>
+    <a href="{% url 'network:alumni_directory' %}">Network</a>
+    <a href="{% url 'jobs:jobs' %}">Jobs</a>
+
+
+
+    
+      <a href="{% url 'accounts:notifications' %}" class="nav-link">Notifications
+        {% if pending_request_count > 0 %}
+          <span class="badge">{{ pending_request_count }}</span>
+        {% endif %}
+      </a>
+    
+
+
+    
+    <a href="{% url 'chat:chat_home' %}">Chat</a>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'accounts:profile' username=request.user.username %}">MyProfile</a>
+    {% endif %}
+    
+    
+    {% if request.user.is_superuser %}
+      <a href="{% url 'accounts:register' %}">Create User</a>
+      
+      <a href="{% url 'accounts:admin_delete_users' %}">Delete Users</a>
+
+
+    {% endif %}
+
+    <a href="{% url 'accounts:logout' %}">Logout</a>
+  </nav>  
+</header>
+
+
+  <!-- Main -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; {{ year|default:2025 }} College Alumni Network</p>
+    <p>
+      <a href="#">About</a> |
+      <a href="#">Help</a> |
+      <a href="#">Contact</a>
+    </p>
+  </footer>
+</body>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const searchInput = document.getElementById("global-search");
+  const mainContainer = document.querySelector("main");
+  let timeout = null;
+  let lastHtml = mainContainer.innerHTML;  // Store original content
+
+  // Create a loading spinner
+  const loadingSpinner = document.createElement("div");
+  loadingSpinner.id = "search-loading";
+  loadingSpinner.innerHTML = `<div class="spinner"></div><p>Loading...</p>`;
+  loadingSpinner.style.display = "none";
+  mainContainer.insertAdjacentElement("beforebegin", loadingSpinner);
+
+  // Function to show loading
+  function showLoading() {
+    loadingSpinner.style.display = "flex";
+  }
+
+  // Function to hide loading
+  function hideLoading() {
+    loadingSpinner.style.display = "none";
+  }
+
+  searchInput.addEventListener("input", function() {
+    clearTimeout(timeout);
+    const query = this.value.trim();
+    const currentUrl = window.location.pathname;
+
+    // if search is cleared, restore default content
+    if (query === "") {
+      mainContainer.innerHTML = lastHtml;
+      return;
+    }
+
+    timeout = setTimeout(() => {
+      let fetchUrl;
+
+      if (currentUrl.includes('/jobs')) {
+        fetchUrl = "{% url 'jobs:live_search_jobs' %}?q=" + encodeURIComponent(query);
+      } else if (currentUrl.includes('/home') || currentUrl === "/") {
+        fetchUrl = "{% url 'accounts:live_search_posts' %}?q=" + encodeURIComponent(query);
+      } else {
+        fetchUrl = "{% url 'network:live_search_users' %}?q=" + encodeURIComponent(query);
+      }
+
+      showLoading();
+
+      fetch(fetchUrl)
+        .then(response => response.text())
+        .then(html => {
+          hideLoading();
+          mainContainer.innerHTML = html;
+        })
+        .catch(error => {
+          console.error("Search error:", error);
+          hideLoading();
+        });
+    }, 300);
+  });
+});
+</script>
+
+
+<style>
+.search-bar {
+  position: relative;
+}
+
+#live-results {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.result-card {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 12px;
+  border-bottom: 1px solid #f1f1f1;
+  transition: background 0.2s;
+}
+
+.result-card:hover {
+  background: #f8f9fa;
+}
+
+.result-card img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.result-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-title {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+}
+
+.result-subtext {
+  color: #666;
+  font-size: 13px;
+}
+
+
+
+
+
+#search-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  color: #555;
+  font-size: 1rem;
+}
+
+.spinner {
+  border: 4px solid #ddd;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+
+
+
+
+
+/* Smooth fade-in animation for all results */
+.fade-in {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Result wrapper */
+.results-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Universal card style */
+.result-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  box-shadow: 0px 3px 10px rgba(0,0,0,0.06);
+  transition: transform .15s ease, box-shadow .15s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.result-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 5px 14px rgba(0,0,0,0.10);
+}
+
+/* text */
+.result-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.result-subtext {
+  font-size: 14px;
+  color: #666;
+}
+
+.result-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+</style>
+
+
+</html>

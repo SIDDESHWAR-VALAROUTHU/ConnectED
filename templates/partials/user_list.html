@@ -1,0 +1,49 @@
+
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/network.css' %}">
+
+<main class="alumni-directory">
+  {% for user in users %}
+    <div class="alumni-card">
+      {% if user.profile_pic %}
+        <img src="{{ user.profile_pic.url }}" alt="{{ user.username }}" class="alumni-pic">
+      {% else %}
+        <img src="{% static 'images/default_profile.png' %}" alt="default" class="alumni-pic">
+      {% endif %}
+
+      <h3 class="alumni-name">{{ user.get_full_name|default:user.username }}</h3>
+      
+      <p class="alumni-designation">{{ user.designation|default:"Student"}} @ {{user.company|default:"Loyola Academy"}}</p>
+
+      <div class="alumni-actions">
+        <a href="{% url 'accounts:profile' user.username %}" class="view-btn">View</a>
+
+        {% if user != request.user %}
+          <form action="{% url 'accounts:send_connection_request' user.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            {% if user.connection %}
+              {% if user.connection.status == 'pending' %}
+                <button type="button" class="connect-btn requested-btn" disabled>Requested</button>
+              {% elif user.connection.status == 'accepted' %}
+                <button type="button" class="connect-btn connected-btn" disabled>Connected</button>
+              {% elif user.connection.status == 'rejected' %}
+                <button type="submit" class="connect-btn">Connect Again</button>
+              {% endif %}
+            {% else %}
+              <button type="submit" class="connect-btn">Connect</button>
+            {% endif %}
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p>No users found.</p>
+  {% endfor %}
+</main>
+<style>
+  .view-btn{
+    border-radius: 6px;
+  }
+</style>
+{% endblock %}

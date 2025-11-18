@@ -1,0 +1,124 @@
+/* add_job.css — matches your site's modern card style */
+.form-wrapper{
+  max-width: 880px;
+  margin: 3rem auto;
+  background: #fff;
+  padding: 2.2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(12,35,63,0.08);
+  font-family: "Inter", sans-serif;
+}
+
+.form-wrapper h2{
+  margin: 0 0 1.2rem 0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1.45rem;
+}
+
+/* grid layout for fields */
+.form-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 1.25rem;
+}
+
+.form-group{
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full{
+  grid-column: 1 / -1;
+}
+
+.form-group label{
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group textarea,
+.form-group input[type="email"]{
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #e6eef8;
+  background: #fbfdff;
+  font-size: 1rem;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.form-group textarea{
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* When Django renders form fields as widgets, they may lack classes.
+   If so, add minimal global style for form inputs above to catch them.
+*/
+
+.form-group input:focus,
+.form-group textarea:focus{
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.10);
+  background: #fff;
+}
+
+.error{
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+}
+
+/* Action buttons */
+.form-actions{
+  display:flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.submit-btn{
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.15rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(37,99,235,0.12);
+}
+
+.submit-btn:hover{ transform: translateY(-2px); }
+
+.btn.cancel{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #0f172a;
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
+  font-weight: 600;
+}
+
+/* responsive */
+@media (max-width: 900px){
+  .form-grid{ grid-template-columns: 1fr; }
+  .form-actions{ justify-content: center; flex-direction: column-reverse; gap: 0.6rem; }
+  .form-actions .submit-btn{ width:100%; }
+  .btn.cancel{ width:100%; text-align:center; }
+}
+
+
+
+
+
+
+

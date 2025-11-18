@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/jobs.css' %}">
+
+<main>
+  {% if user.is_authenticated %}
+    {% if user.role == 'alumni' or user.is_superuser %}
+      <a href="{% url 'jobs:add_job' %}" class="add-job-btn">Add Job Post</a>
+    {% endif %}
+  {% endif %}
+
+  {% for job in jobs %}
+  <div class="job-card">
+    <div class="alumni-info">
+      {% if job.author.profile_pic %}
+        <img src="{{ job.author.profile_pic.url }}" alt="Profile Pic">
+      {% else %}
+        <img src="https://via.placeholder.com/100" alt="Profile Pic">
+      {% endif %}
+      <div class="alumni-name">{{ job.author.username }}</div>
+      <div class="alumni-designation">{{ job.author.current_designation|default:"Alumni" }}</div>
+    </div>
+
+    <div class="job-details">
+      <h3>{{ job.title }}</h3>
+      <p>{{ job.description }}</p>
+      <a href="#">Apply Now</a>
+    </div>
+
+    {% if user == job.author or user.is_superuser %}
+      <div class="job-actions">
+        <!--- <a href="{% url 'jobs:edit_job' job.id %}" class="btn">Edit</a> --->
+        <a href="{% url 'jobs:delete_job' job.id %}" class="btn delete">Delete</a>
+      </div>
+    {% endif %}
+  </div>
+  {% empty %}
+  <p>No jobs posted yet.</p>
+  {% endfor %}
+</main>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/editprofile.css' %}">
+
+<div class="profile-form-container">
+  <h2>Edit Profile</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="profile-form">
+
+      <div>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="{{ user.username }}" required>
+      </div>
+
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+      </div>
+
+      <div>
+        <label for="contact_number">Contact Number</label>
+        <input type="text" id="contact_number" name="contact_number"
+          pattern="\d{10}" maxlength="10"
+          title="Enter a 10-digit number"
+          value="{{ user.contact_number|default:'' }}">
+
+      </div>
+
+
+
+    <!--
+      <div>
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          <option value="student" {% if user.role == 'student' %}selected{% endif %}>Student</option>
+          <option value="alumni" {% if user.role == 'alumni' %}selected{% endif %}>Alumni</option>
+        </select>
+      </div>
+    -->
+      <div>
+        <label for="department">Department</label>
+        <input type="text" id="department" name="department" value="{{ user.department }}">
+      </div>
+
+      <div>
+        <label for="batch">Batch</label>
+        <input type="text" id="batch" name="batch" value="{{ user.batch }}">
+      </div>
+
+      <div>
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" value="{{ user.location }}">
+      </div>
+
+      <div>
+        <label for="current_designation">Current Designation</label>
+        <input type="text" id="current_designation" name="current_designation" value="{{ user.current_designation }}">
+      </div>
+
+      <div>
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" value="{{ user.company }}">
+      </div>
+
+      <div class="full-width">
+        <label for="about">About</label>
+        <textarea id="about" name="about" rows="4">{{ user.about }}</textarea>
+      </div>
+
+      <div>
+        <label>Profile Picture</label>
+        <input type="file" name="profile_pic">
+      </div>
+
+      <div>
+        <label>Cover Picture</label>
+        <input type="file" name="cover_pic">
+      </div>
+
+      <button type="submit" class="submit-btn">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

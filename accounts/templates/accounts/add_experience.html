@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/add_experience.css' %}">
+
+<div class="experience-form-container">
+  <h2>Add Experience</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="experience-form">
+
+      <div>
+        <label for="title">Title / Role</label>
+        <input type="text" id="title" name="title" value="{{ form.title.value }}" required>
+      </div>
+
+      <div>
+        <label for="company">Company / Organization</label>
+        <input type="text" id="company" name="company" value="{{ form.company.value }}" required>
+      </div>
+
+      <div class="date-group">
+        <div>
+          <label for="start_date">Start Date</label>
+          <input type="date" id="start_date" name="start_date" value="{{ form.start_date.value }}" required>
+        </div>
+
+        <div>
+          <label for="end_date">End Date</label>
+          <input type="date" id="end_date" name="end_date" value="{{ form.end_date.value }}">
+        </div>
+      </div>
+
+      <div class="full-width">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4" placeholder="Describe your role or work...">{{ form.description.value }}</textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Save Experience</button>
+    </div>
+  </form>
+
+  <a href="{% url 'accounts:profile' request.user.username %}" class="back-link">← Back to Profile</a>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | College Connect</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Welcome Back 👋</h2>
+    <form method="POST" action="{% url 'accounts:login' %}">
+      {% csrf_token %}
+      <label for="username">User ID</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <p class="forgot">
+      <a href="{% url 'accounts:forgot_password' %}">Forgot Password?</a>
+    </p>
+  </div>
+
+</body>
+</html>

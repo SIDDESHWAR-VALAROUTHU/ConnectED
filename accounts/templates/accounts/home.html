@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+/* Layout */
+body {
+  background: #f3f5f9;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Post Card */
+.post-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin: 20px auto;
+  width: 65%;
+  position: relative;
+  max-width: 900px;
+}
+
+/* Header */
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.post-header img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.post-header .user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-header .user-info a {
+  font-weight: bold;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.post-header .user-info a:hover {
+  text-decoration: underline;
+}
+
+.post-header .timestamp {
+  font-size: 13px;
+  color: gray;
+}
+
+/* Post content */
+.post-content h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.post-content p {
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.post-content img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* Actions */
+.post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.like-btn, .view-comments-btn {
+  background: #eee;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.like-btn:hover, .view-comments-btn:hover {
+  background: #ddd;
+}
+
+/* Comments Section */
+.comments-section {
+  display: none;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.comment {
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.comment-author {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.comment-form {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.comment-form input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.comment-form button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+
+<div class="posts-container">
+  {% for post in posts %}
+  <div class="post-card" id="post-{{ post.id }}">
+    
+    <div class="post-header">
+      {% if post.author.profile_pic %}
+      <img src="{{ post.author.profile_pic.url }}" alt="{{ post.author.username }}">
+      {% else %}
+      <img src="{% static 'images/default_profile.png' %}" alt="Profile">
+      {% endif %}
+      <div class="user-info">
+        <a href="{% url 'accounts:profile' post.author.username %}" class="notif-username">
+          {{ post.author.username }}
+        </a>
+        <span class="timestamp">{{ post.created_at|date:"M d, Y H:i" }}</span>
+      </div>
+    </div>
+
+    <div class="post-content">
+      <h3>{{ post.title }}</h3>
+      <p>{{ post.description }}</p>
+      {% if post.image %}
+      <img src="{{ post.image.url }}" alt="Post Image">
+      {% endif %}
+    </div>
+
+    <div class="post-actions">
+      <p><button class="like-btn" data-post-id="{{ post.id }}">
+        ❤️ 
+      </button>
+      <span id="like-count-{{ post.id }}">{{ post.like_count }} </span>Likes</p>
+      <button class="view-comments-btn" data-post-id="{{ post.id }}">💬 View Comments</button>
+    </div>
+
+    <div class="comments-section" id="comments-{{ post.id }}">
+      <div id="comment-list-{{ post.id }}">
+        {% for comment in post.comments.all %}
+        <div class="comment">
+          <span class="comment-author">{{ comment.user.username }}:</span> {{ comment.content }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <form class="comment-form" data-post-id="{{ post.id }}">
+        <input type="text" name="comment" placeholder="Write a comment..." required>
+        <button type="submit">Post</button>
+      </form>
+    </div>
+
+  </div>
+  {% empty %}
+  <p style="text-align:center;">No posts available.</p>
+  {% endfor %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+
+  // Toggle comments
+  $(".view-comments-btn").click(function() {
+    let post_id = $(this).data("post-id");
+    $("#comments-" + post_id).slideToggle();
+  });
+
+  // Like button AJAX
+  $(".like-btn").click(function() {
+    let post_id = $(this).data("post-id");
+    $.ajax({
+      url: `/accounts/like/${post_id}/`,
+      type: "POST",
+      data: {
+        post_id: post_id,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      success: function(response) {
+        $("#like-count-" + post_id).text(response.like_count);
+      },
+      error: function() {
+        alert("Error liking post.");
+      }
+    });
+  });
+
+  // Add comment AJAX
+  $(".comment-form").submit(function(e) {
+    e.preventDefault();
+    let post_id = $(this).data("post-id");
+    let input = $(this).find("input[name='comment']");
+    let commentText = input.val().trim();
+    if (!commentText) return;
+
+    $.ajax({
+      url: `/accounts/comment/${post_id}/`,
+      type: "POST",
+      data: {
+        text: commentText,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      success: function(response) {
+        $("#comment-list-" + post_id).prepend(
+          `<div class='comment'><span class='comment-author'>${response.author}:</span> ${response.text}</div>`
+        );
+        input.val("");
+      },
+      error: function() {
+        alert("Error adding comment.");
+      }
+    });
+  });
+
+});
+</script>
+
+{% endblock %}

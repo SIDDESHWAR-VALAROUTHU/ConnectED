@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">  {# optional external CSS file #}
+
+
+
+<div class="chat-container">
+  <!-- Sidebar -->
+  <div class="chat-sidebar">
+    <div class="sidebar-header">Messaging</div>
+    <div class="sidebar-search">
+      <input id="chat-search" type="text" placeholder="Search conversations...">
+    </div>
+
+    <div class="chat-user-list" id="chat-user-list">
+      {% for user in connected_users %}
+        {% comment %} guard against missing file on profile_pic {% endcomment %}
+        <a href="{% url 'chat:chat_with' username=user.username %}" class="chat-user-item {% if selected_user and selected_user.username == user.username %}active{% endif %}" data-username="{{ user.username }}">
+          {% if user.profile_pic and user.profile_pic.url %}
+            <img src="{{ user.profile_pic.url }}" alt="{{ user.username }}">
+          {% else %}
+            <img src="{% static 'images/default_profile.png' %}" alt="default">
+          {% endif %}
+          <div>
+            <div style="font-weight:700;color:#0b3a66">{{ user.get_full_name|default:user.username }}</div>
+            <div style="font-size:0.9rem;color:var(--muted)">Start a conversation...</div>
+          </div>
+        </a>
+      {% empty %}
+        <div style="padding:18px;color:var(--muted)">No connections yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Chat Main -->
+  <div class="chat-main">
+    {% if selected_user %}
+      <div class="chat-header">
+        {% if selected_user.profile_pic and selected_user.profile_pic.url %}
+          <img src="{{ selected_user.profile_pic.url }}" alt="{{ selected_user.username }}">
+        {% else %}
+          <img src="{% static 'images/default_profile.png' %}" alt="default">
+        {% endif %}
+        <div class="meta">{{ selected_user.get_full_name|default:selected_user.username }}</div>
+      </div>
+
+      <div id="chat-messages" class="chat-messages" aria-live="polite">
+        {% for message in messages %}
+          <div class="msg-row {% if message.sender == request.user %}right{% endif %}">
+            <div class="msg-bubble {% if message.sender == request.user %}mine{% endif %}">
+              {{ message.content|linebreaksbr }}
+              <div class="msg-meta">{{ message.timestamp|date:"M d, H:i" }}</div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-chat">No messages yet. Say hi 👋</div>
+        {% endfor %}
+      </div>
+
+      <form id="chat-form" class="chat-input-area" method="POST" action="{% url 'chat:chat_with' username=selected_user.username %}">
+        {% csrf_token %}
+        <input id="chat-input" type="text" name="message" placeholder="Write a message..." autocomplete="off" />
+        <button id="send-btn" type="submit">Send</button>
+      </form>
+    {% else %}
+      <div class="empty-chat">Select a user from the left to start chatting.</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if selected_user %}
+<script>
+(function(){
+  // Helper
+  function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  const currentUser = "{{ request.user.username|escapejs }}";
+  const selectedUser = "{{ selected_user.username|default:''|escapejs }}";
+  const csrfToken = "{{ csrf_token }}";
+
+  // auto-scroll to bottom on load
+  const chatMessages = document.getElementById('chat-messages');
+  if(chatMessages) { chatMessages.scrollTop = chatMessages.scrollHeight; }
+
+  // Sending via AJAX (so page doesn't refresh)
+  const chatForm = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+
+  if(chatForm){
+    chatForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const msg = input.value.trim();
+      if(!msg) return;
+      const url = chatForm.getAttribute('action');
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: msg })
+      })
+      .then(r => r.json())
+      .then(data => {
+        // append new message bubble
+        if(chatMessages){
+          const row = document.createElement('div'); row.className = 'msg-row right';
+          const b = document.createElement('div'); b.className = 'msg-bubble mine';
+          b.innerHTML = escapeHtml(data.message) + `<div class="msg-meta">${new Date().toLocaleString()}</div>`;
+          row.appendChild(b); chatMessages.appendChild(row);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          input.value = '';
+        }
+      }).catch(err => {
+        console.error('Send failed', err);
+      });
+    });
+  }
+
+  // Polling for new messages every 2s
+  let lastFetch = null;
+  if(chatMessages && selectedUser){
+    // set lastFetch to last message timestamp if available
+    {% if messages %}
+      lastFetch = "{{ messages.last.timestamp.isoformat }}";
+    {% endif %}
+
+    setInterval(() => {
+      const fetchUrl = "{% url 'chat:fetch_messages' username=selected_user.username %}" + (lastFetch ? ('?after=' + encodeURIComponent(lastFetch)) : '');
+      fetch(fetchUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+        .then(r => r.json())
+        .then(data => {
+          if(data.messages && data.messages.length){
+            data.messages.forEach(m => {
+              // skip messages already shown from current user (client added)
+              // append message only if it's not mine (to avoid duplication) OR if id not present
+              const isMine = m.sender === currentUser;
+              // create bubble
+              const row = document.createElement('div'); row.className = 'msg-row' + (isMine ? ' right' : '');
+              const b = document.createElement('div'); b.className = 'msg-bubble' + (isMine ? ' mine' : '');
+              b.innerHTML = escapeHtml(m.content) + `<div class="msg-meta">${new Date(m.timestamp).toLocaleString()}</div>`;
+              row.appendChild(b);
+              chatMessages.appendChild(row);
+              lastFetch = m.timestamp;
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        }).catch(err => console.error(err));
+    }, 2000);
+  }
+
+  // quick search filter in sidebar
+  const search = document.getElementById('chat-search');
+  if(search){
+    const list = document.getElementById('chat-user-list');
+    search.addEventListener('input', function(){
+      const q = this.value.toLowerCase();
+      Array.from(list.querySelectorAll('.chat-user-item')).forEach(a => {
+        const name = a.textContent.toLowerCase();
+        a.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+  }
+})();
+</script>
+{% endif %}
+
+{% endblock %}

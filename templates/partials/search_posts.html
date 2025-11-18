@@ -1,0 +1,15 @@
+{% for post in posts %}
+<a href="{% url 'accounts:home' %}#post-{{ post.id }}" class="result-card">
+  {% if post.author.profile_pic and post.author.profile_pic.url %}
+  <img src="{{ post.author.profile_pic.url }}" alt="{{ post.author.username }}">
+{% else %}
+  <img src="https://via.placeholder.com/100" alt="Default Profile">
+{% endif %}
+  <div class="result-info">
+    <span class="result-title">{{ post.title }}</span>
+    <span class="result-subtext">{{ post.description|truncatechars:60 }}</span>
+  </div>
+</a>
+{% empty %}
+<div class="result-card"><span class="result-title">No posts found.</span></div>
+{% endfor %}

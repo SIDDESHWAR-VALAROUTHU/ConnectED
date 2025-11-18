@@ -1,0 +1,104 @@
+<!-- accounts/templates/accounts/register.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/add_project.css' %}">
+
+<div class="form-wrapper">
+  <h2>👤 Register New User</h2>
+
+  <!-- ✅ Django Messages Display -->
+  {% if messages %}
+    <div class="message-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="uid">UID</label>
+      <input type="text" name="uid" id="uid" placeholder="Enter UID" required>
+    </div>
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" name="username" id="username" placeholder="Enter username" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" placeholder="Enter email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="department">Department</label>
+      <input type="text" name="department" id="department" placeholder="Enter department" required>
+    </div>
+
+    <div class="form-group">
+      <label for="batch">Batch</label>
+      <input type="text" name="batch" id="batch" placeholder="Enter batch (e.g., 2022)">
+    </div>
+
+    <div class="form-group">
+      <label for="role">Role</label>
+      <select name="role" id="role" required>
+        <option value="student">Student</option>
+        <option value="alumni">Alumni</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="password1">Password</label>
+      <input type="password" name="password1" id="password1" placeholder="Enter password" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password2">Confirm Password</label>
+      <input type="password" name="password2" id="password2" placeholder="Confirm password" required>
+    </div>
+
+    <button type="submit" class="submit-btn">Create Account</button>
+  </form>
+
+  <div class="back-link">
+    <a href="{% url 'accounts:login' %}">← Back to Login</a>
+  </div>
+</div>
+
+<!-- ✅ Optional Inline Styling for messages (can move to your CSS if needed) -->
+<style>
+.message-container {
+  margin-bottom: 15px;
+}
+.alert {
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.alert-success {
+  background-color: #e6f4ea;
+  color: #256029;
+  border-left: 4px solid #34a853;
+}
+.alert-error,
+.alert-danger {
+  background-color: #fdecea;
+  color: #c5221f;
+  border-left: 4px solid #ea4335;
+}
+.alert-warning {
+  background-color: #fff8e1;
+  color: #8c6d1f;
+  border-left: 4px solid #fbbc04;
+}
+</style>
+
+{% endblock %}

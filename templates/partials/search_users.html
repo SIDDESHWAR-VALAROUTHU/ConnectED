@@ -1,0 +1,18 @@
+{% for user in users %}
+<a href="{% url 'accounts:profile' user.username %}" class="result-card">
+  {% if user.profile_pic and user.profile_pic.url %}
+    <img src="{{ user.profile_pic.url }}" alt="Profile Picture">
+  {% else %}
+    <img src="https://via.placeholder.com/100" alt="Default Profile">
+  {% endif %}
+  <div class="result-info">
+    <span class="result-title">{{ user.username }}</span>
+    <span class="result-subtext">
+      {{ user.current_designation|default:'Student' }}
+      {% if user.company %} @ {{ user.company }}{% endif %}
+    </span>
+  </div>
+</a>
+{% empty %}
+<div class="result-card"><span class="result-title">No users found.</span></div>
+{% endfor %}
