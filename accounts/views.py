@@ -87,6 +87,7 @@ def register_view(request):
 # -------------------------------
 def login_view(request):
     """Handles user login — first page of the site."""
+    print("---- LOGIN VIEW CALLED ----")
     if request.user.is_authenticated:
         return redirect('accounts:profile', username=request.user.username)
 
@@ -102,7 +103,7 @@ def login_view(request):
             return redirect('accounts:profile', username=user.username)
         else:
             messages.error(request, "Invalid username or password.")
-
+    print("Rendering login page...")
     return render(request, 'accounts/login.html')
 
 
