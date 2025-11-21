@@ -1,0 +1,55 @@
+  .profile-form-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 900px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .profile-form-container h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #0d3b66;
+    font-size: 1.6rem;
+  }
+  .profile-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem 2rem;
+  }
+  .profile-form label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: inline-block;
+    color: #444;
+  }
+  .profile-form input, .profile-form select, .profile-form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccd6e0;
+    background-color: #f9fafc;
+    transition: border-color 0.3s;
+  }
+  .profile-form input:focus, .profile-form select:focus, .profile-form textarea:focus {
+    border-color: #0d3b66;
+    outline: none;
+  }
+  .full-width {
+    grid-column: span 2;
+  }
+  .submit-btn {
+    grid-column: span 2;
+    padding: 12px;
+    background: #0d3b66;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-align: center;
+  }
+  .submit-btn:hover {
+    background: #144e8a;
+  }
