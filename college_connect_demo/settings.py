@@ -12,7 +12,14 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")
 DEBUG = config("DEBUG", default="False").lower() == "true"
 
 # Add your Render app domain here
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app.onrender.com']
+#ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app.onrender.com']
+ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://localhost',
+    'http://127.0.0.1',
+]
 
 
 # ======================
