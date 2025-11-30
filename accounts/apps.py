@@ -1,8 +1,12 @@
+# accounts/apps.py
 from django.apps import AppConfig
+import os
 
 class AccountsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'accounts'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "accounts"
 
     def ready(self):
-        import accounts.signals
+        if os.environ.get('CREATE_ADMIN', '') == 'true':
+            from .utils.create_superuser import create_superuser
+            create_superuser()
