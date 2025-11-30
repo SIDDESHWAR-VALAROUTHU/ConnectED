@@ -10,11 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ======================
 SECRET_KEY = config("DJANGO_SECRET_KEY")
 DEBUG = config("DEBUG", default="False").lower() == "true"
-if not DEBUG:
-    DEBUG_PROPAGATE_EXCEPTIONS = True
 
-
-ALLOWED_HOSTS = ["*"]
+# Add your Render app domain here
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app.onrender.com']
 
 
 # ======================
@@ -36,13 +34,12 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
 ]
 
-
 # ======================
 # MIDDLEWARE
 # ======================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # <-- important for static files on Render
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -50,7 +47,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 
 ROOT_URLCONF = "college_connect_demo.urls"
 
@@ -74,17 +70,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "college_connect_demo.wsgi.application"
 ASGI_APPLICATION = "college_connect_demo.asgi.application"
 
-
-# ======================
-# CHANNELS (safe fallback)
-# ======================
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
-
 # ======================
 # DATABASE CONFIG
 # ======================
@@ -95,48 +80,42 @@ DATABASES = {
     )
 }
 
-
-# ======================
-# CUSTOM USER MODEL
-# ======================
-AUTH_USER_MODEL = "accounts.CustomUser"
-
-AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
-
-LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "login"
-
-
 # ======================
 # STATIC & MEDIA FILES
 # ======================
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
+
+# Local static files folder
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Where collectstatic will put files
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Use Whitenoise Manifest storage for production (safe for Render)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-
-# FIX: Remove STATICFILES_DIRS in Render Build (collectstatic)
-if not DEBUG:
-    STATICFILES_DIRS = []
+# ======================
+# DEBUG SWITCH for STATICFILES_DIRS
+# ======================
+# If DEBUG=False on Render, keep STATICFILES_DIRS for collectstatic
+# during build; it will be ignored in production after collectstatic
+#if not DEBUG:
+ #   STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
 # ======================
-# SECURITY FOR RENDER
+# SECURITY SETTINGS
 # ======================
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
-
-SECURE_SSL_REDIRECT = False  # free Render has SSL off on internal requests
-
+SECURE_SSL_REDIRECT = not DEBUG
 
 # ======================
-# EMAIL SETTINGS (Gmail)
+# EMAIL SETTINGS
 # ======================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -146,27 +125,16 @@ EMAIL_HOST_USER = config("EMAIL_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# ======================
+# AUTH
+# ======================
+AUTH_USER_MODEL = "accounts.CustomUser"
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
 
 # ======================
-# AUTO FIELD
+# DEFAULT AUTO FIELD
 # ======================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-
-
-import logging
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'ERROR',
-    },
-}
