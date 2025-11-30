@@ -59,8 +59,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ]
     )
 
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    cover_pic = models.ImageField(upload_to='cover_pics/', blank=True, null=True,default='defaults/default_cover.jpg')
+    profile_pic = models.URLField(blank=True, null=True)
+    cover_pic = models.URLField(
+        blank=True, null=True,
+        default="https://res.cloudinary.com/xxx/image/upload/v123/default_cover.jpg"
+    )
     about = models.TextField(blank=True, null=True)
     current_designation = models.CharField(max_length=100, blank=True, null=True)
     company = models.CharField(max_length=100, blank=True, null=True)

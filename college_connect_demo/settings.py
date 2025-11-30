@@ -82,6 +82,7 @@ ASGI_APPLICATION = "college_connect_demo.asgi.application"
 # ======================
 DATABASES = {
     "default": dj_database_url.config(
+        #default="postgresql://connecteddb_user:uQfjLRcoVTlxqwnhhen6InZivDGiSKEi@dpg-d4g6p875r7bs73bo9hkg-a/connecteddb",
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
     )
@@ -145,3 +146,5 @@ LOGOUT_REDIRECT_URL = "login"
 # DEFAULT AUTO FIELD
 # ======================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+

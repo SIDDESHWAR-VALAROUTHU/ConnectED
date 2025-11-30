@@ -11,12 +11,14 @@ def redirect_to_login(request):
 
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
+    
     path('', redirect_to_login, name='redirect_to_login'),
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
     path('chat/', include('chat.urls', namespace='chat')),
     path('network/', include(('network.urls', 'network'), namespace='network')),
     path('jobs/', include(('jobs.urls', 'jobs'), namespace='jobs')),
-    path('admin/', admin.site.urls),
+    
 ]
 
 if settings.DEBUG:
