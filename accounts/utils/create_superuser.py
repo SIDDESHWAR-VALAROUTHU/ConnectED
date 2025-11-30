@@ -9,3 +9,5 @@ def create_superuser():
             password="Admin@123"
         )
         print("Superuser created!")
+    else:
+        print("Superuser already exists, skipping creation.")
