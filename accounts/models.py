@@ -58,7 +58,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             )
         ]
     )
-'''
+    '''
     profile_pic = models.URLField(max_length=500, blank=True, null=True)
     cover_pic = models.URLField(
         max_length=500,
@@ -66,7 +66,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True,
         default="https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/v123456/default_cover.jpg"
     )
-'''
+    '''
     #modified these two line to store images in render
     profile_pic = models.BinaryField(null=True, blank=True)
     cover_pic = models.BinaryField(null=True, blank=True)
