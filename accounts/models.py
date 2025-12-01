@@ -68,8 +68,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     '''
     #modified these two line to store images in render
-    profile_pic = models.BinaryField(null=True, blank=True)
-    cover_pic = models.BinaryField(null=True, blank=True)
+    profile_pic = models.BinaryField(null=True, blank=True, editable=True)
+    cover_pic = models.BinaryField(null=True, blank=True, editable=True)
+
 
     about = models.TextField(blank=True, null=True)
     current_designation = models.CharField(max_length=100, blank=True, null=True)
