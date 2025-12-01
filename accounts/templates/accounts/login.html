@@ -9,7 +9,8 @@
 <body>
 
   <div class="login-container">
-    <h2>Welcome Back 👋</h2>
+    <h1 style="color:#0d3b66;">ConnectED</h1>
+    <h3>Welcome Back 👋</h3>
     <form method="POST" action="{% url 'accounts:login' %}">
       {% csrf_token %}
       <label for="username">User ID</label>

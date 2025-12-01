@@ -63,9 +63,9 @@
     <aside class="left-panel">
       <div class="about-section">
         <h2>About</h2>
-        <p>{{ profile_user.about|default:"Passionate developer with experience in full-stack engineering and AI-driven applications." }}</p>
-        <li><strong>Department:</strong> {{ profile_user.department|default:"CSE" }}</li>
-        <li><strong>Batch:</strong> {{ profile_user.batch|default:"2025" }}</li>
+        <p>{{ profile_user.about|default:" " }}</p>
+        <li><strong>Department:</strong> {{ profile_user.department|default:" " }}</li>
+        <li><strong>Batch:</strong> {{ profile_user.batch|default:" " }}</li>
       </div>
 
       {% if not hide_contact %}

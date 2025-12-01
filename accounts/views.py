@@ -149,7 +149,7 @@ def profile_view(request, username):
     hide_achievements = privacy and not privacy.show_achievements and not is_own_profile and not is_connected
     hide_posts = privacy and not privacy.show_posts and not is_own_profile and not is_connected
     hide_contact = privacy and not privacy.show_contact_info and not is_own_profile and not is_connected
-    
+    '''
     profile_pic_url = (
         profile_user.profile_pic.url
         if profile_user.profile_pic and hasattr(profile_user.profile_pic, 'url')
@@ -160,6 +160,33 @@ def profile_view(request, username):
         if profile_user.cover_pic and hasattr(profile_user.cover_pic, 'url')
         else "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80"
     )
+    '''
+        # PROFILE PIC: handle FileField (.url), URL string, or raw bytes (BinaryField)
+    if getattr(profile_user, "profile_pic", None):
+        # FileField / ImageField case
+        if hasattr(profile_user.profile_pic, "url"):
+            profile_pic_url = profile_user.profile_pic.url
+        # raw bytes stored (BinaryField) or memoryview
+        elif isinstance(profile_user.profile_pic, (bytes, bytearray, memoryview)):
+            profile_pic_url = _to_data_uri(profile_user.profile_pic)
+        # url stored as plain string (URLField / CharField)
+        else:
+            profile_pic_url = str(profile_user.profile_pic)
+    else:
+        profile_pic_url = "https://via.placeholder.com/150"
+
+    # COVER PIC: same logic as above
+    if getattr(profile_user, "cover_pic", None):
+        if hasattr(profile_user.cover_pic, "url"):
+            cover_pic_url = profile_user.cover_pic.url
+        elif isinstance(profile_user.cover_pic, (bytes, bytearray, memoryview)):
+            cover_pic_url = _to_data_uri(profile_user.cover_pic)
+        else:
+            cover_pic_url = str(profile_user.cover_pic)
+    else:
+        cover_pic_url = "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80"
+
+
 
     experiences = [] if hide_experience else Experience.objects.filter(user=profile_user)
     projects = [] if hide_projects else Project.objects.filter(user=profile_user)
@@ -183,6 +210,26 @@ def profile_view(request, username):
 
 
 
+
+# add these imports at the top of the file (near other imports)
+import base64
+import imghdr
+from typing import Union
+
+def _to_data_uri(data: Union[bytes, bytearray, memoryview]) -> str:
+    """
+    Convert raw image bytes to a data URI with an image/* mime type.
+    Falls back to 'jpeg' if imghdr can't detect type.
+    """
+    if isinstance(data, memoryview):
+        data = data.tobytes()
+    kind = imghdr.what(None, h=data)
+    if not kind:
+        kind = "jpeg"
+    b64 = base64.b64encode(data).decode("ascii")
+    return f"data:image/{kind};base64,{b64}"
+
+
 # -------------------------------
 # EDIT PROFILE
 # -------------------------------
@@ -200,16 +247,20 @@ def edit_profile(request):
         user.about = request.POST.get('about')
         user.contact_number = request.POST.get('contact_number')
 
+        # Save Profile Picture
         if 'profile_pic' in request.FILES:
-            user.profile_pic = request.FILES['profile_pic']
+            user.profile_pic = request.FILES['profile_pic'].read()
+
+        # Save Cover Picture
         if 'cover_pic' in request.FILES:
-            user.cover_pic = request.FILES['cover_pic']
+            user.cover_pic = request.FILES['cover_pic'].read()
 
         user.save()
         messages.success(request, "Profile updated successfully!")
         return redirect('accounts:profile', username=user.username)
 
     return render(request, 'accounts/edit_profile.html', {'user': user})
+
 
 
 # -------------------------------

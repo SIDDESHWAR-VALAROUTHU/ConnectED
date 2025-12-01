@@ -18,14 +18,16 @@
       {% else %}
         <img src="https://via.placeholder.com/100" alt="Profile Pic">
       {% endif %}
-      <div class="alumni-name">{{ job.author.username }}</div>
+        <a href="{% url 'accounts:profile' job.author.username %}" class="alumni-name" style="text-decoration: none;">
+            {{ job.author.username }}
+        </a>
       <div class="alumni-designation">{{ job.author.current_designation|default:"Alumni" }}</div>
     </div>
 
     <div class="job-details">
       <h3>{{ job.title }}</h3>
       <p>{{ job.description }}</p>
-      <a href="#">Apply Now</a>
+      <a href="{{ job.apply_link }}" target="_blank">Apply Now</a>
     </div>
 
     {% if user == job.author or user.is_superuser %}
