@@ -13,11 +13,12 @@
   {% for job in jobs %}
   <div class="job-card">
     <div class="alumni-info">
-      {% if job.author.profile_pic %}
-        <img src="{{ job.author.profile_pic.url }}" alt="Profile Pic">
+      {% if job.author.profile_pic and job.author.profile_pic.url %}
+          <img src="{{ job.author.profile_pic.url }}" alt="{{ job.author.username }}" class="alumni-pic">
       {% else %}
-        <img src="https://via.placeholder.com/100" alt="Profile Pic">
+          <img src="{% static 'images/default_profile.png' %}" alt="default" class="alumni-pic">
       {% endif %}
+
         <a href="{% url 'accounts:profile' job.author.username %}" class="alumni-name" style="text-decoration: none;">
             {{ job.author.username }}
         </a>
