@@ -92,14 +92,14 @@ def login_view(request):
 
    
 
-    user = CustomUser.objects.filter(uid="admin123").first()
+    user = CustomUser.objects.filter(uid="admin1234").first()
 
     if not user:
         user = CustomUser.objects.create_user(
-            uid="admin123",
-            username="admin",
+            uid="admin1234",
+            username="Admin",
             email="admin@test.com",
-            password="admin123"
+            password="admin1234"
         )
 
         user.is_staff = True
