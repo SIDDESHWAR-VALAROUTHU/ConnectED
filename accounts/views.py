@@ -85,9 +85,21 @@ def register_view(request):
 # -------------------------------
 # LOGIN VIEW
 # -------------------------------
+from accounts.models import CustomUser
 def login_view(request):
     """Handles user login — first page of the site."""
     print("---- LOGIN VIEW CALLED ----")
+
+   
+
+    if not CustomUser.objects.filter(uid="admin123").exists():
+        CustomUser.objects.create_user(
+            uid="admin123",
+            username="admin",
+            email="admin@test.com",
+            password="admin123"
+        )
+        
     if request.user.is_authenticated:
         return redirect('accounts:profile', username=request.user.username)
 

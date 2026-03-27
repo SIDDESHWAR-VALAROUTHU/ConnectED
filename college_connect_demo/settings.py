@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY & KEYS
 # ======================
 SECRET_KEY = config("DJANGO_SECRET_KEY")
-#DEBUG = config("DEBUG", default="False").lower() == "true"
-DEBUG=True
+DEBUG = config("DEBUG", default="False").lower() == "true"
+#DEBUG=True
 
 # Add your Render app domain here
 #ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app.onrender.com']
