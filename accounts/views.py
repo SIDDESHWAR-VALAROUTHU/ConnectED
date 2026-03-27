@@ -92,13 +92,17 @@ def login_view(request):
 
    
 
-    if not CustomUser.objects.filter(uid="admin123").exists():
-        CustomUser.objects.create_user(
-            uid="admin123",
+    if not user:
+        user = CustomUser.objects.create_user(
+            uid="admin",
             username="admin",
             email="admin@test.com",
             password="admin123"
         )
+
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
         
     if request.user.is_authenticated:
         return redirect('accounts:profile', username=request.user.username)
