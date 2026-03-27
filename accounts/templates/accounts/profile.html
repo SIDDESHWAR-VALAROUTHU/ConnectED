@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load custom_filters %}
 {% block content %}
 
 <div class="profile-container">
@@ -9,7 +10,11 @@
   <div class="cover-section" style="background-image: url('{{ cover_pic_url }}');">
     <div class="profile-header">
       <div class="profile-pic">
-        <img src="{{ profile_pic_url }}" alt="Profile Picture">
+        {% if connected_user.profile_pic %}
+          <img src="data:image/jpeg;base64,{{ connected_user.profile_pic|b64encode }}" alt="{{ connected_user.username }}">
+        {% else %}
+          <img src="https://via.placeholder.com/80" alt="default profile">
+        {% endif %}
       </div>
       <div class="profile-info">
         <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
