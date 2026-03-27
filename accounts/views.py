@@ -98,7 +98,7 @@ def login_view(request):
         user = CustomUser.objects.create_user(
             uid="admin1234",
             username="Admin",
-            email="admin@test.com",
+            email="admin1@test.com",
             password="admin1234"
         )
 
